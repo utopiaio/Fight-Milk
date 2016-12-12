@@ -15,9 +15,10 @@ const config = require('./config');
 let insaWait = null; // this will be used to refill the page
 
 console.log('Initiating INSA 🔨...');
+nightmare.goto(config.INSA_URL);
 
 const insa = () => {
-  nightmare.goto(config.INSA_URL)
+  nightmare
     // eslint-disable-next-line
     .evaluate(() => document.querySelector(`[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`).innerHTML)
     .then((token) => {
@@ -41,7 +42,6 @@ const insa = () => {
 
           insaWait = setInterval(() => {
             nightmare
-              .wait('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]')
               .evaluate(() => document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]').value)
               .then((v) => {
                 // form has been submitted
