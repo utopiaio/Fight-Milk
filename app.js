@@ -1,16 +1,20 @@
+/* global document */
 /* eslint no-console: 0 */
 
 const http = require('http');
 const express = require('express');
 
 const config = require('./config');
+const insa = require('./insa');
 
 const app = express();
 
+insa();
+
 // new iPhone [7], who dis
-app.all('*', (request, response) => {
+app.all('*', (_, response) => {
   response
-    .set('Content-Type', 'text/plain')
+    .set('Content-Type', 'text/plain;charset=UTF-8')
     .status(200)
     .send(`This app was made to demonstrate how a simple script can bypass the "captcha" system used by [INSA](http://www.insa.gov.et) website
 
