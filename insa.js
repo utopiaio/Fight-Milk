@@ -44,7 +44,7 @@ const insa = () => {
               .evaluate(() => document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]').value)
               .then((v) => {
                 // form has been submitted
-                if (v.length === 0) {
+                if (typeof v === 'string' && v.length === 0) {
                   clearInterval(insaWait);
                   console.log(`Done:
                     Name: ${name}
