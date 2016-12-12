@@ -8,7 +8,7 @@ const insa = require('./insa');
 
 const server = http.createServer();
 
-insa();
+insa(config.INSA_URL).run();
 
 // new iPhone [7], who dis
 server.on('request', (_, response) => {
