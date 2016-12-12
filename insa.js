@@ -1,5 +1,6 @@
 /* global window, document */
 /* eslint no-console: 0 */
+
 const faker = require('faker');
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
@@ -21,7 +22,7 @@ const insa = () => {
     .evaluate(() => document.querySelector(`[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`).innerHTML)
     .then((token) => {
       // eslint-disable-next-line
-      const [name, tel, email, fax, tinno] = [faker.name.findName(), faker.phone.phoneNumber(), faker.internet.email(), faker.phone.phoneNumber(), faker.phone.phoneNumber()];
+      const [name, tel, email, fax, tinno] = [faker.name.findName(), faker.phone.phoneNumber().replace(/ x.+$/, ''), faker.internet.email(), faker.phone.phoneNumber().replace(/ x.+$/, ''), faker.phone.phoneNumber().replace(/ x.+$/, '')];
 
       nightmare
         .type('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]', name)
@@ -49,8 +50,8 @@ const insa = () => {
                   console.log(`Done:
                     Name: ${name}
                     Tel: ${tel}
-                    Email: ${email},
-                    Fax: ${fax},
+                    Email: ${email}
+                    Fax: ${fax}
                     TIN: ${tinno}
                   `);
 
