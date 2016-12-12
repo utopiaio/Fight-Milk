@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "express": "^4.14.0",
     "faker": "^3.1.0",
     "nightmare": "^2.8.1",
     "nightmare-upload": "^0.1.1"
