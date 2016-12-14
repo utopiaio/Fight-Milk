@@ -53,10 +53,12 @@ const insa = (url, options) => {
             }, 1000);
           })
           .catch((error) => {
+            nightmare.end();
             console.error(error);
           });
       })
       .catch((err) => {
+        nightmare.end();
         console.error(err);
       });
   };
@@ -64,6 +66,7 @@ const insa = (url, options) => {
   try {
     nightmare.goto(url);
   } catch (err) {
+    nightmare.end();
     console.error(err);
   }
 
