@@ -1,17 +1,17 @@
 /* global document */
 /* eslint no-console: 0 */
 
+const path = require('path');
 const faker = require('faker');
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
 
-const nightmare = Nightmare({
-  show: true,
-  typeInterval: 32,
-});
-
-const insa = (url) => {
+const insa = (url, options) => {
   let insaWait = null; // this will be used to refill the form
+  const nightmare = Nightmare(Object.assign({
+    show: true,
+    typeInterval: 32,
+  }, options));
 
   const run = () => {
     nightmare
@@ -27,7 +27,7 @@ const insa = (url) => {
           .type('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_email]', email)
           .type('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_fax]', fax)
           .type('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_tinno]', tinno)
-          .upload('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_attachfile]', '/Users/moe/Desktop/insa/🙈.pdf') // 20MB is the max allowed
+          .upload('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_attachfile]', path.resolve('./🙈.pdf')) // 20MB is the max allowed
           // .type('[name=exe]', 'pdf') [filled via js on the page - this is their MIME check]
           .type('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_usercode]', token)
           .click('button[type=submit]')
@@ -43,12 +43,13 @@ const insa = (url) => {
                 .then((nameValue) => {
                   // form has been submitted and waiting for form reset...
                   if (typeof nameValue === 'string' && nameValue.length === 0) {
-                    console.log(`Done:
-                      Name: ${name}
-                      Tel: ${tel}
-                      Email: ${email}
-                      Fax: ${fax}
-                      TIN: ${tinno}
+                    console.log(`
+                      Done:
+                        > Name: ${name}
+                        > Tel: ${tel}
+                        > Email: ${email}
+                        > Fax: ${fax}
+                        > TIN: ${tinno}
                     `);
 
                     clearInterval(insaWait);
@@ -75,6 +76,7 @@ const insa = (url) => {
   return {
     run,
     insaWait,
+    nightmare,
   };
 };
 
