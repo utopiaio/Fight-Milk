@@ -27,7 +27,7 @@ server.on('request', (request, response) => {
       return;
 
     case 'UNLOCK': {
-      const worker = insa(config.INSA_URL, { show: true });
+      const worker = insa(config.INSA_URL, { show: true, typeInterval: 8 });
       insaPoll.push(worker);
       worker.run((company) => {
         companiesCreated.push(company);

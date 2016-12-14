@@ -8,6 +8,7 @@ require('nightmare-upload')(Nightmare);
 
 const insa = (url, options) => {
   let insaWait = null; // this will be used to refill the form
+  let cleanSweep = null; // if site freezes, restarts form processing
   const nightmare = Nightmare(Object.assign({
     show: true,
     typeInterval: 32,
@@ -34,6 +35,7 @@ const insa = (url, options) => {
           .then(() => {
             if (insaWait !== null) {
               clearInterval(insaWait);
+              clearTimeout(cleanSweep);
             }
 
             insaWait = setInterval(() => {
@@ -47,10 +49,29 @@ const insa = (url, options) => {
                       subscribe({ name, tel, email, fax, tinno });
                     }
                     clearInterval(insaWait);
+                    clearTimeout(cleanSweep);
                     run(subscribe);
                   }
                 });
             }, 1000);
+
+            // after 5 seconds if form isn't reset --- we'll reset it ourselves
+            cleanSweep = setTimeout(() => {
+              nightmare
+                .evaluate(() => {
+                  console.log('resetting form...');
+                  document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]').value = '';
+                  document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_telno]').value = '';
+                  document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_email]').value = '';
+                  document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_fax]').value = '';
+                  document.querySelector('[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_tinno]').value = '';
+                  return 'cleared';
+                })
+                .then(() => {
+                  clearInterval(insaWait);
+                  run(subscribe);
+                });
+            }, 5000);
           })
           .catch((error) => {
             nightmare.end();
