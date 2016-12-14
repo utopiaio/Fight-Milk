@@ -8,6 +8,7 @@ const insa = require('./insa');
 
 const server = http.createServer();
 let insaPoll = [];
+let companiesCreated = [];
 
 server.on('request', (request, response) => {
   switch (request.method) {
@@ -17,16 +18,23 @@ server.on('request', (request, response) => {
         worker.nightmare.end();
       });
       response.writeHead(200, { 'Content-Type': 'text/plain' });
-      response.end(`Cleared ${insaPoll.length} workers`);
+      response.end(`
+> cleared ${insaPoll.length} worker${insaPoll.length > 1 ? 's' : ''}
+> ${companiesCreated.length} compan${companiesCreated.length > 1 ? 'ies' : 'y'} created
+> ${companiesCreated.map(company => company.email).join(', ')}`);
       insaPoll = [];
+      companiesCreated = [];
       return;
 
     case 'UNLOCK': {
       const worker = insa(config.INSA_URL, { show: false });
       insaPoll.push(worker);
-      worker.run();
+      worker.run((company) => {
+        companiesCreated.push(company);
+      });
       response.writeHead(200, { 'Content-Type': 'text/plain' });
-      response.end(`Created, now running ${insaPoll.length} worker[s]`);
+      response.end(`
+> now running ${insaPoll.length} worker${insaPoll.length > 1 ? 's' : ''}`);
       return;
     }
 

@@ -13,7 +13,7 @@ const insa = (url, options) => {
     typeInterval: 32,
   }, options));
 
-  const run = () => {
+  const run = (subscribe) => {
     nightmare
       // eslint-disable-next-line
       .evaluate(() => document.querySelector(`[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`).innerHTML)
@@ -43,17 +43,11 @@ const insa = (url, options) => {
                 .then((nameValue) => {
                   // form has been submitted and waiting for form reset...
                   if (typeof nameValue === 'string' && nameValue.length === 0) {
-                    console.log(`
-                      Done:
-                        > Name: ${name}
-                        > Tel: ${tel}
-                        > Email: ${email}
-                        > Fax: ${fax}
-                        > TIN: ${tinno}
-                    `);
-
+                    if (subscribe) {
+                      subscribe({ name, tel, email, fax, tinno });
+                    }
                     clearInterval(insaWait);
-                    run();
+                    run(subscribe);
                   }
                 });
             }, 1000);
