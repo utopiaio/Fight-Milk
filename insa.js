@@ -52,6 +52,14 @@ const insa = (url, options) => {
         });
       }, selector)
       .then((token) => {
+        if (!token || token.length !== 11) {
+          console.log('> token clear');
+          clearInterval(insaWait);
+          clearTimeout(cleanSweep);
+          run(subscribe);
+          return;
+        }
+
         const [name, telno, email, fax, tinno] = [
           faker.name.findName(),
           faker.phone.phoneNumber().replace(/ x.+$/, ''),
@@ -118,7 +126,8 @@ const insa = (url, options) => {
                         document.querySelector(_selector.telno) !== null &&
                         document.querySelector(_selector.email) !== null &&
                         document.querySelector(_selector.fax) !== null &&
-                        document.querySelector(_selector.tinno) !== null
+                        document.querySelector(_selector.tinno) !== null &&
+                        document.querySelector(_selector.usercode) !== null
                       ) {
                         clearInterval(interval);
                         document.querySelector(_selector.name).value = '';
@@ -126,6 +135,7 @@ const insa = (url, options) => {
                         document.querySelector(_selector.email).value = '';
                         document.querySelector(_selector.fax).value = '';
                         document.querySelector(_selector.tinno).value = '';
+                        document.querySelector(_selector.usercode).value = '';
                         resolve();
                       }
                     }, 500);
