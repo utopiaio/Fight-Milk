@@ -32,7 +32,7 @@ server.on('request', (request, response) => {
 
     // new iPhone [7], who dis
     default:
-      response.writeHead(200, { 'Content-Type': 'text/plain' });
+      response.writeHead(200, { 'Content-Type': 'text/plain;charset=utf-8' });
       response.end(`
         This app was made to demonstrate how a simple script can bypass the "captcha" system used by [INSA](http://www.insa.gov.et) website
 
@@ -42,7 +42,7 @@ server.on('request', (request, response) => {
 
         Sadly made by [moe](mailto:moe.heroku@gmail.com)
 
-        Source hosted on [GitHub](https://github.com/github.com/moe-szyslak/insa-captcha)
+        Source <soon to be> hosted on [GitHub](https://github.com/github.com/moe-szyslak/insa-captcha)
       `);
   }
 });
