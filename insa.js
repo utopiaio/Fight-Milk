@@ -6,6 +6,20 @@ const faker = require('faker');
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
 
+const selector = {
+  // eslint-disable-next-line
+  captcha: `[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`,
+  name: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]',
+  telno: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_telno]',
+  email: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_email]',
+  fax: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_fax]',
+  tinno: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_tinno]',
+  attachfile: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_attachfile]',
+  exe: '[name=exe]',
+  usercode: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_usercode]',
+  submit: 'button[type=submit]',
+};
+
 const insa = (url, options) => {
   let insaWait = null; // this will be used to refill the form
   let cleanSweep = null; // if site freezes, restarts form processing
@@ -14,20 +28,6 @@ const insa = (url, options) => {
     show: true,
     typeInterval: 32,
   }, options));
-
-  const selector = {
-    // eslint-disable-next-line
-    captcha: `[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`,
-    name: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]',
-    tel: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_telno]',
-    email: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_email]',
-    fax: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_fax]',
-    tinno: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_tinno]',
-    attachfile: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_attachfile]',
-    exe: '[name=exe]',
-    usercode: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_usercode]',
-    submit: 'button[type=submit]',
-  };
 
   const errorHandler = (error) => {
     clearInterval(insaWait);
@@ -39,18 +39,18 @@ const insa = (url, options) => {
   const run = (subscribe) => {
     nightmare
       .wait(selector.captcha)
-      .evaluate(() => {
+      .evaluate((_selector) => {
         let interval = null;
 
         return new Promise((resolve) => {
           interval = setInterval(() => {
-            if (document.querySelector(selector.captcha) !== null) {
+            if (document.querySelector(_selector.captcha) !== null) {
               clearInterval(interval);
-              resolve(document.querySelector(selector.captcha).innerHTML);
+              resolve(document.querySelector(_selector.captcha).innerHTML);
             }
           }, 500);
         });
-      })
+      }, selector)
       .then((token) => {
         const [name, telno, email, fax, tinno] = [
           faker.name.findName(),
@@ -61,8 +61,8 @@ const insa = (url, options) => {
         ];
 
         nightmare
-          .type(selector.nameValue, name)
-          .type(selector.tinno, telno)
+          .type(selector.name, name)
+          .type(selector.telno, telno)
           .type(selector.email, email)
           .type(selector.fax, fax)
           .type(selector.tinno, tinno)
@@ -79,18 +79,18 @@ const insa = (url, options) => {
             insaWait = setInterval(() => {
               nightmare
                 .wait(selector.name)
-                .evaluate(() => {
+                .evaluate((_selector) => {
                   let interval = null;
 
                   return new Promise((resolve) => {
                     interval = setInterval(() => {
-                      if (document.querySelector(selector.name) !== null) {
+                      if (document.querySelector(_selector.name) !== null) {
                         clearInterval(interval);
-                        resolve(document.querySelector(selector.name).value);
+                        resolve(document.querySelector(_selector.name).value);
                       }
                     }, 500);
                   });
-                })
+                }, selector)
                 .then((nameValue) => {
                   // form has been submitted and waiting for form reset...
                   if (typeof nameValue === 'string' && nameValue.length === 0) {
@@ -105,32 +105,32 @@ const insa = (url, options) => {
                 });
             }, 1000);
 
-            // after 5 seconds if form isn't reset --- we'll reset it ourselves
+            // after 15 seconds if form isn't reset --- we'll reset it ourselves
             cleanSweep = setTimeout(() => {
               nightmare
-                .evaluate(() => {
+                .evaluate((_selector) => {
                   let interval = null;
 
                   return new Promise((resolve) => {
                     interval = setInterval(() => {
                       if (
-                        document.querySelector(selector.name) !== null &&
-                        document.querySelector(selector.telno) !== null &&
-                        document.querySelector(selector.email) !== null &&
-                        document.querySelector(selector.fax) !== null &&
-                        document.querySelector(selector.tinno) !== null
+                        document.querySelector(_selector.name) !== null &&
+                        document.querySelector(_selector.telno) !== null &&
+                        document.querySelector(_selector.email) !== null &&
+                        document.querySelector(_selector.fax) !== null &&
+                        document.querySelector(_selector.tinno) !== null
                       ) {
                         clearInterval(interval);
-                        document.querySelector(selector.name).value = '';
-                        document.querySelector(selector.telno).value = '';
-                        document.querySelector(selector.email).value = '';
-                        document.querySelector(selector.fax).value = '';
-                        document.querySelector(selector.tinno).value = '';
+                        document.querySelector(_selector.name).value = '';
+                        document.querySelector(_selector.telno).value = '';
+                        document.querySelector(_selector.email).value = '';
+                        document.querySelector(_selector.fax).value = '';
+                        document.querySelector(_selector.tinno).value = '';
                         resolve();
                       }
                     }, 500);
                   });
-                })
+                }, selector)
                 .then(() => {
                   console.log('> form cleared');
                   clearInterval(insaWait);
@@ -138,7 +138,7 @@ const insa = (url, options) => {
                   run(subscribe);
                 })
                 .catch(errorHandler);
-            }, 5000);
+            }, 15000);
           })
           .catch(errorHandler);
       })
