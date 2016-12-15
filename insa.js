@@ -22,7 +22,6 @@ const selector = {
 
 const insa = (url, options) => {
   let insaWait = null; // this will be used to refill the form
-  let cleanSweep = null; // if site freezes, restarts form processing
 
   const nightmare = Nightmare(Object.assign({
     show: true,
@@ -31,7 +30,6 @@ const insa = (url, options) => {
 
   const errorHandler = (error) => {
     clearInterval(insaWait);
-    clearTimeout(cleanSweep);
     nightmare.halt();
     console.error(error);
   };
@@ -55,7 +53,6 @@ const insa = (url, options) => {
         if (!token || token.length !== 11) {
           console.log('> token clear');
           clearInterval(insaWait);
-          clearTimeout(cleanSweep);
           run(subscribe);
           return;
         }
@@ -81,7 +78,6 @@ const insa = (url, options) => {
           .then(() => {
             if (insaWait !== null) {
               clearInterval(insaWait);
-              clearTimeout(cleanSweep);
             }
 
             insaWait = setInterval(() => {
@@ -107,48 +103,10 @@ const insa = (url, options) => {
                     }
 
                     clearInterval(insaWait);
-                    clearTimeout(cleanSweep);
                     run(subscribe);
                   }
                 });
             }, 1000);
-
-            // after 15 seconds if form isn't reset --- we'll reset it ourselves
-            cleanSweep = setTimeout(() => {
-              nightmare
-                .evaluate((_selector) => {
-                  let interval = null;
-
-                  return new Promise((resolve) => {
-                    interval = setInterval(() => {
-                      if (
-                        document.querySelector(_selector.name) !== null &&
-                        document.querySelector(_selector.telno) !== null &&
-                        document.querySelector(_selector.email) !== null &&
-                        document.querySelector(_selector.fax) !== null &&
-                        document.querySelector(_selector.tinno) !== null &&
-                        document.querySelector(_selector.usercode) !== null
-                      ) {
-                        clearInterval(interval);
-                        document.querySelector(_selector.name).value = '';
-                        document.querySelector(_selector.telno).value = '';
-                        document.querySelector(_selector.email).value = '';
-                        document.querySelector(_selector.fax).value = '';
-                        document.querySelector(_selector.tinno).value = '';
-                        document.querySelector(_selector.usercode).value = '';
-                        resolve();
-                      }
-                    }, 500);
-                  });
-                }, selector)
-                .then(() => {
-                  console.log('> form cleared');
-                  clearInterval(insaWait);
-                  clearTimeout(cleanSweep);
-                  run(subscribe);
-                })
-                .catch(errorHandler);
-            }, 15000);
           })
           .catch(errorHandler);
       })
