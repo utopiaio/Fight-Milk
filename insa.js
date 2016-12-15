@@ -6,6 +6,7 @@ const faker = require('faker');
 const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
 
+// selectors on the DOM
 const selector = {
   // eslint-disable-next-line
   captcha: `[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`,
@@ -23,11 +24,13 @@ const selector = {
 const insa = (url, options) => {
   let insaWait = null; // this will be used to refill the form
 
+  // creating a nightmare instance that'll do a whole lot of typing
   const nightmare = Nightmare(Object.assign({
     show: true,
     typeInterval: 32,
   }, options));
 
+  // generic error handler --- any error thrown by nightmare will halt the instance
   const errorHandler = (error) => {
     clearInterval(insaWait);
     nightmare.halt();
@@ -35,8 +38,12 @@ const insa = (url, options) => {
   };
 
   const run = (subscribe) => {
+    // [1]
     nightmare
+      // wait until captcha DOM is ready
       .wait(selector.captcha)
+      // promise to check on captcha DOM and makes sure it's there
+      // otherwise null will be returned on edge cases(i.e. no innerHTML)
       .evaluate((_selector) => {
         let interval = null;
 
@@ -50,6 +57,7 @@ const insa = (url, options) => {
         });
       }, selector)
       .then((token) => {
+        // check for token, if not 11, restart the process from [1]
         if (!token || token.length !== 11) {
           console.log('> token clear');
           clearInterval(insaWait);
@@ -57,6 +65,7 @@ const insa = (url, options) => {
           return;
         }
 
+        // getting data from faker
         const [name, telno, email, fax, tinno] = [
           faker.name.findName(),
           faker.phone.phoneNumber().replace(/ x.+$/, ''),
@@ -65,6 +74,7 @@ const insa = (url, options) => {
           faker.phone.phoneNumber().replace(/ x.+$/, ''),
         ];
 
+        // a whole lot of typing
         nightmare
           .type(selector.name, name)
           .type(selector.telno, telno)
@@ -76,12 +86,16 @@ const insa = (url, options) => {
           .type(selector.usercode, token)
           .click(selector.submit)
           .then(() => {
+            // if there's an "instance" waiting for `selector.name` to be empty, clear it
             if (insaWait !== null) {
               clearInterval(insaWait);
             }
 
+            // checking every second for `selector.name` to be empty after submit
+            // so nightmare can start typing again
             insaWait = setInterval(() => {
               nightmare
+                // waiting for name, will be evaluated via a promise
                 .wait(selector.name)
                 .evaluate((_selector) => {
                   let interval = null;
@@ -96,12 +110,13 @@ const insa = (url, options) => {
                   });
                 }, selector)
                 .then((nameValue) => {
-                  // form has been submitted and waiting for form reset...
+                  // form has been "successfully" submitted, if there's a subscriber, notify
                   if (typeof nameValue === 'string' && nameValue.length === 0) {
                     if (subscribe) {
                       subscribe({ name, telno, email, fax, tinno });
                     }
 
+                    // reseting...
                     clearInterval(insaWait);
                     run(subscribe);
                   }
