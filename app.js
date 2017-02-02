@@ -48,9 +48,7 @@ server.on('request', (request, response) => {
 
         It's not like the whole site is running on **http** 🙈
 
-        Sadly made by [moe](mailto:moe.heroku@gmail.com)
-
-        Source <soon to be> hosted on [GitHub](https://github.com/github.com/moe-szyslak/insa-captcha)
+        Sadly made by [moe](mailto:moe.duffdude@gmail.com)
       `);
   }
 });
