@@ -7,7 +7,7 @@ const Nightmare = require('nightmare');
 require('nightmare-upload')(Nightmare);
 
 // selectors on the DOM
-const selector = {
+const SELECTOR = {
   // eslint-disable-next-line
   captcha: `[style="color:white;font-weight:bold;padding-left:25px;font-size:18px;background:url('/PartnerRegistrationForm-portlet/images/capchaback.png') no-repeat;"]`,
   name: '[name=_partneractionclass_WAR_PartnerRegistrationFormportlet_name]',
@@ -41,7 +41,7 @@ const insa = (url, options) => {
     // [1]
     nightmare
       // wait until captcha DOM is ready
-      .wait(selector.captcha)
+      .wait(SELECTOR.captcha)
       // promise to check on captcha DOM and makes sure it's there
       // otherwise null will be returned on edge cases(i.e. no innerHTML)
       .evaluate((_selector) => {
@@ -55,7 +55,7 @@ const insa = (url, options) => {
             }
           }, 500);
         });
-      }, selector)
+      }, SELECTOR)
       .then((token) => {
         // check for token, if not 11, restart the process from [1]
         if (!token || token.length !== 11) {
@@ -76,15 +76,15 @@ const insa = (url, options) => {
 
         // a whole lot of typing
         nightmare
-          .type(selector.name, name)
-          .type(selector.telno, telno)
-          .type(selector.email, email)
-          .type(selector.fax, fax)
-          .type(selector.tinno, tinno)
-          .upload(selector.attachfile, path.resolve('./🙈.pdf')) // 20MB is the max allowed
+          .type(SELECTOR.name, name)
+          .type(SELECTOR.telno, telno)
+          .type(SELECTOR.email, email)
+          .type(SELECTOR.fax, fax)
+          .type(SELECTOR.tinno, tinno)
+          .upload(SELECTOR.attachfile, path.resolve('./🙈.pdf')) // 20MB is the max allowed
           // .type(selector.exe, 'pdf') [filled via js on the page - this is their MIME check]
-          .type(selector.usercode, token)
-          .click(selector.submit)
+          .type(SELECTOR.usercode, token)
+          .click(SELECTOR.submit)
           .then(() => {
             // if there's an "instance" waiting for `selector.name` to be empty, clear it
             if (insaWait !== null) {
@@ -96,7 +96,7 @@ const insa = (url, options) => {
             insaWait = setInterval(() => {
               nightmare
                 // waiting for name, will be evaluated via a promise
-                .wait(selector.name)
+                .wait(SELECTOR.name)
                 .evaluate((_selector) => {
                   let interval = null;
 
@@ -108,7 +108,7 @@ const insa = (url, options) => {
                       }
                     }, 500);
                   });
-                }, selector)
+                }, SELECTOR)
                 .then((nameValue) => {
                   // form has been "successfully" submitted, if there's a subscriber, notify
                   if (typeof nameValue === 'string' && nameValue.length === 0) {
