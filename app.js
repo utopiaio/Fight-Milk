@@ -7,34 +7,34 @@ const config = require('./config');
 const insa = require('./insa');
 
 const server = http.createServer();
-let insaPoll = [];
-let companiesCreated = [];
+let INSA_POLL = [];
+let COMPANIES_CREATED = [];
 
 server.on('request', (request, response) => {
   switch (request.method) {
     case 'LOCK':
-      insaPoll.forEach((worker) => {
+      INSA_POLL.forEach((worker) => {
         clearInterval(worker.insaWait);
         worker.nightmare.end();
       });
       response.writeHead(200, { 'Content-Type': 'text/plain' });
       response.end(`
-> cleared ${insaPoll.length} worker${insaPoll.length > 1 ? 's' : ''}
-> ${companiesCreated.length} compan${companiesCreated.length > 1 ? 'ies' : 'y'} created
-> ${companiesCreated.map(company => company.email).join(', ')}`);
-      insaPoll = [];
-      companiesCreated = [];
+> cleared ${INSA_POLL.length} worker${INSA_POLL.length > 1 ? 's' : ''}
+> ${COMPANIES_CREATED.length} compan${COMPANIES_CREATED.length > 1 ? 'ies' : 'y'} created
+> ${COMPANIES_CREATED.map(company => company.email).join(', ')}`);
+      INSA_POLL = [];
+      COMPANIES_CREATED = [];
       return;
 
     case 'UNLOCK': {
       const worker = insa(config.INSA_URL, { show: true, typeInterval: 8 });
-      insaPoll.push(worker);
+      INSA_POLL.push(worker);
       worker.run((company) => {
-        companiesCreated.push(company);
+        COMPANIES_CREATED.push(company);
       });
       response.writeHead(200, { 'Content-Type': 'text/plain' });
       response.end(`
-> now running ${insaPoll.length} worker${insaPoll.length > 1 ? 's' : ''}`);
+> now running ${INSA_POLL.length} worker${INSA_POLL.length > 1 ? 's' : ''}`);
       return;
     }
 
