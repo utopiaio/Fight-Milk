@@ -81,7 +81,7 @@ const insa = (url, options) => {
           .type(SELECTOR.email, email)
           .type(SELECTOR.fax, fax)
           .type(SELECTOR.tinno, tinno)
-          .upload(SELECTOR.attachfile, path.resolve('./🙈.pdf')) // 20MB is the max allowed
+          .upload(SELECTOR.attachfile, path.resolve('./Fight-Milk.pdf')) // 20MB is the max allowed
           // .type(selector.exe, 'pdf') [filled via js on the page - this is their MIME check]
           .type(SELECTOR.usercode, token)
           .click(SELECTOR.submit)
