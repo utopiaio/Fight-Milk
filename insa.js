@@ -122,10 +122,8 @@ const insa = (url, options) => {
                   }
                 });
             }, 1000);
-          })
-          .catch(errorHandler);
-      })
-      .catch(errorHandler);
+          }, errorHandler);
+      }, errorHandler);
   };
 
   try {
