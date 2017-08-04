@@ -1,6 +1,6 @@
 # Fight Milk
 
-![Fight Milk](https://raw.githubusercontent.com/moe-szyslak/Fight-Milk/master/Fight-Milk.png "Fight Milk")
+![Fight Milk](https://raw.githubusercontent.com/utopiaio/Fight-Milk/master/Fight-Milk.png "Fight Milk")
 
 A simple node phantom app that sends a form to [INSA](http://www.insa.gov.et/registrationapplication) where the idea of a captcha is grossly misunderstood --- sad & funny at the same time
 
